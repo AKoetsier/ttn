@@ -27,7 +27,7 @@ type Handler interface {
 	component.Interface
 	component.ManagementInterface
 
-	WithMQTT(username, password string, brokers ...string) Handler
+	WithMQTT(username, password, certificate_path, key_path string, brokers ...string) Handler
 	WithAMQP(username, password, host, exchange string) Handler
 	WithDeviceAttributes(attribute ...string) Handler
 
@@ -62,13 +62,15 @@ type handler struct {
 
 	downlink chan *pb_broker.DownlinkMessage
 
-	mqttClient   mqtt.Client
-	mqttUsername string
-	mqttPassword string
-	mqttBrokers  []string
-	mqttEnabled  bool
-	mqttUp       chan *types.UplinkMessage
-	mqttEvent    chan *types.DeviceEvent
+	mqttClient          mqtt.Client
+	mqttUsername        string
+	mqttPassword        string
+	mqttCertificatePath string
+	mqttKeyPath         string
+	mqttBrokers         []string
+	mqttEnabled         bool
+	mqttUp              chan *types.UplinkMessage
+	mqttEvent           chan *types.DeviceEvent
 
 	amqpClient   amqp.Client
 	amqpUsername string
@@ -91,9 +93,11 @@ var (
 	AMQPDownlinkQueue = "ttn-handler-downlink"
 )
 
-func (h *handler) WithMQTT(username, password string, brokers ...string) Handler {
+func (h *handler) WithMQTT(username, password, certificate_path, key_path string, brokers ...string) Handler {
 	h.mqttUsername = username
 	h.mqttPassword = password
+	h.mqttCertificatePath = certificate_path
+	h.mqttKeyPath = key_path
 	h.mqttBrokers = brokers
 	h.mqttEnabled = true
 	return h
@@ -131,7 +135,7 @@ func (h *handler) Init(c *component.Component) error {
 		for _, broker := range h.mqttBrokers {
 			brokers = append(brokers, fmt.Sprintf("tcp://%s", broker))
 		}
-		err = h.HandleMQTT(h.mqttUsername, h.mqttPassword, brokers...)
+		err = h.HandleMQTT(h.mqttUsername, h.mqttPassword, h.mqttCertificatePath, h.mqttKeyPath, brokers...)
 		if err != nil {
 			return err
 		}

@@ -78,6 +78,8 @@ var handlerCmd = &cobra.Command{
 				viper.GetString("handler.mqtt-username"),
 				viper.GetString("handler.mqtt-password"),
 				viper.GetString("handler.mqtt-address"),
+				viper.GetString("handler.mqtt-certificate-path"),
+				viper.GetString("handler.mqtt-key-path"),
 			)
 
 			mqttPort, err := parse.Port(viper.GetString("handler.mqtt-address"))
