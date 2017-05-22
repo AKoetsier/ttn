@@ -41,6 +41,8 @@ var handlerCmd = &cobra.Command{
 			"TTN Broker ID": viper.GetString("handler.broker-id"),
 			"MQTT":          viper.GetString("handler.mqtt-address"),
 			"AMQP":          viper.GetString("handler.amqp-address"),
+			"Cert. Path":    viper.GetString("handler.mqtt-certificate-path"),
+			"Key Path":      viper.GetString("handler.mqtt-key-path"),
 		}).Info("Initializing Handler")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -77,9 +79,9 @@ var handlerCmd = &cobra.Command{
 			handler = handler.WithMQTT(
 				viper.GetString("handler.mqtt-username"),
 				viper.GetString("handler.mqtt-password"),
-				viper.GetString("handler.mqtt-address"),
 				viper.GetString("handler.mqtt-certificate-path"),
 				viper.GetString("handler.mqtt-key-path"),
+				viper.GetString("handler.mqtt-address"),
 			)
 
 			mqttPort, err := parse.Port(viper.GetString("handler.mqtt-address"))
