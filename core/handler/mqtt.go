@@ -6,6 +6,8 @@ package handler
 import (
 	"time"
 	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
   	
 	ttnlog "github.com/TheThingsNetwork/go-utils/log"
 	"github.com/TheThingsNetwork/ttn/core/types"
@@ -18,13 +20,23 @@ var MQTTTimeout = 2 * time.Second
 // MQTTBufferSize indicates the size for uplink channel buffers
 var MQTTBufferSize = 10
 
-func (h *handler) HandleMQTT(username, password, certificate_path, key_path string, mqttBrokers ...string) error {
+func (h *handler) HandleMQTT(username, password, certificate_path, key_path, ca_path string, mqttBrokers ...string) error {
 	if certificate_path != "" && key_path != "" {
+		certpool := x509.NewCertPool()
+		if ca_path != "" {
+			pemCerts, err := ioutil.ReadFile(ca_path)
+			if err == nil {
+				certpool.AppendCertsFromPEM(pemCerts)
+			}
+		}
+
 		cert, err := tls.LoadX509KeyPair(certificate_path, key_path)
 		if err != nil {
 			return err
 		}
+
 		tlsConfig := &tls.Config{
+			RootCAs: certpool,
 			Certificates: []tls.Certificate{cert},
 		}
 		h.mqttClient = mqtt.NewTLSClient(h.Ctx, "ttnhdl", username, password, tlsConfig, mqttBrokers...)

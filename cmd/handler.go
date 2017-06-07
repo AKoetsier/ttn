@@ -81,6 +81,7 @@ var handlerCmd = &cobra.Command{
 				viper.GetString("handler.mqtt-password"),
 				viper.GetString("handler.mqtt-certificate-path"),
 				viper.GetString("handler.mqtt-key-path"),
+				viper.GetString("handler.mqtt-ca-path"),
 				viper.GetString("handler.mqtt-address"),
 			)
 
