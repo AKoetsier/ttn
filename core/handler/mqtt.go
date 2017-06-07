@@ -21,13 +21,19 @@ var MQTTTimeout = 2 * time.Second
 var MQTTBufferSize = 10
 
 func (h *handler) HandleMQTT(username, password, certificate_path, key_path, ca_path string, mqttBrokers ...string) error {
+	ctx := h.Ctx.WithField("Protocol", "MQTT")
+	
 	if certificate_path != "" && key_path != "" {
-		certpool := x509.NewCertPool()
+		ctx.Info("Starting MQTT with TLS auth")
+		certpool, _ := x509.SystemCertPool()
 		if ca_path != "" {
+			certpool = x509.NewCertPool()
+			ctx.Debug("Using CA file")
 			pemCerts, err := ioutil.ReadFile(ca_path)
-			if err == nil {
-				certpool.AppendCertsFromPEM(pemCerts)
+			if err != nil {
+				return err
 			}
+			certpool.AppendCertsFromPEM(pemCerts)
 		}
 
 		cert, err := tls.LoadX509KeyPair(certificate_path, key_path)
@@ -39,6 +45,7 @@ func (h *handler) HandleMQTT(username, password, certificate_path, key_path, ca_
 			RootCAs: certpool,
 			Certificates: []tls.Certificate{cert},
 		}
+
 		h.mqttClient = mqtt.NewTLSClient(h.Ctx, "ttnhdl", username, password, tlsConfig, mqttBrokers...)
 	} else {
 		h.mqttClient = mqtt.NewClient(h.Ctx, "ttnhdl", username, password, mqttBrokers...)
@@ -63,7 +70,6 @@ func (h *handler) HandleMQTT(username, password, certificate_path, key_path, ca_
 		return err
 	}
 
-	ctx := h.Ctx.WithField("Protocol", "MQTT")
 
 	go func() {
 		for up := range h.mqttUp {

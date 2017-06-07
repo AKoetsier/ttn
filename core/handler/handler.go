@@ -134,8 +134,12 @@ func (h *handler) Init(c *component.Component) error {
 
 	if h.mqttEnabled {
 		var brokers []string
+		var protocol string
+		if protocol = "tcp"; h.mqttCertificatePath != "" {
+			protocol = "tcps"
+		}
 		for _, broker := range h.mqttBrokers {
-			brokers = append(brokers, fmt.Sprintf("tcp://%s", broker))
+			brokers = append(brokers, fmt.Sprintf("%s://%s", protocol, broker))
 		}
 		err = h.HandleMQTT(h.mqttUsername, h.mqttPassword, h.mqttCertificatePath, h.mqttKeyPath, h.mqttCAPath, brokers...)
 		if err != nil {

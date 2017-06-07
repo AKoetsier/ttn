@@ -43,6 +43,7 @@ var handlerCmd = &cobra.Command{
 			"AMQP":          viper.GetString("handler.amqp-address"),
 			"Cert. Path":    viper.GetString("handler.mqtt-certificate-path"),
 			"Key Path":      viper.GetString("handler.mqtt-key-path"),
+			"CA Path":       viper.GetString("handler.mqtt-ca-path"),
 		}).Info("Initializing Handler")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -196,10 +197,16 @@ func init() {
 	handlerCmd.Flags().String("mqtt-address-announce", "", "MQTT address to announce (takes value of server-address-announce if empty while enabled)")
 	handlerCmd.Flags().String("mqtt-username", "", "MQTT username")
 	handlerCmd.Flags().String("mqtt-password", "", "MQTT password")
+	handlerCmd.Flags().String("mqtt-certificate-path", "", "MQTT Certificate")
+	handlerCmd.Flags().String("mqtt-key-path", "", "MQTT Private Key")
+	handlerCmd.Flags().String("mqtt-ca-path", "", "MQTT CA Certificate(s)")
 	viper.BindPFlag("handler.mqtt-address", handlerCmd.Flags().Lookup("mqtt-address"))
 	viper.BindPFlag("handler.mqtt-address-announce", handlerCmd.Flags().Lookup("mqtt-address-announce"))
 	viper.BindPFlag("handler.mqtt-username", handlerCmd.Flags().Lookup("mqtt-username"))
 	viper.BindPFlag("handler.mqtt-password", handlerCmd.Flags().Lookup("mqtt-password"))
+	viper.BindPFlag("handler.mqtt-certificate-path", handlerCmd.Flags().Lookup("mqtt-certificate-path"))
+	viper.BindPFlag("handler.mqtt-key-path", handlerCmd.Flags().Lookup("mqtt-key-path"))
+	viper.BindPFlag("handler.mqtt-ca-path", handlerCmd.Flags().Lookup("mqtt-ca-path"))
 
 	handlerCmd.Flags().String("amqp-address", "", "AMQP host and port. Leave empty to disable AMQP")
 	handlerCmd.Flags().String("amqp-address-announce", "", "AMQP address to announce (takes value of server-address-announce if empty while enabled)")
